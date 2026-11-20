@@ -9,7 +9,7 @@ operation.
 
 ```hcl
 module "networking_ip_assignment" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_networking_ip_assignment?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_networking_ip_assignment?ref=v2.0.0"
 
   region = "us-east"
 

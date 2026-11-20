@@ -8,7 +8,7 @@ a separate assignment (see `linode_reserved_ip_assignment`) puts it there.
 
 ```hcl
 module "reserved_ip" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_reserved_ip?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_reserved_ip?ref=v2.0.0"
 
   region = "us-east"
   tags   = ["prod", "web"]

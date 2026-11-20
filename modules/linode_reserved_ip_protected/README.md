@@ -11,7 +11,7 @@ points at, or that an instance is created on.
 
 ```hcl
 module "reserved_ip" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_reserved_ip_protected?ref=v2.2.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_reserved_ip_protected?ref=v2.2.0"
 
   region = "us-east"
   tags   = ["prod", "web"]

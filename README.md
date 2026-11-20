@@ -64,7 +64,7 @@ Each module under `modules/` wraps the Linode resource of the same name:
 
 ```hcl
 module "volumes" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_volume?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_volume?ref=v2.0.0"
 
   volumes = {
     data = { label = "data", region = "us-east", size = 20 }

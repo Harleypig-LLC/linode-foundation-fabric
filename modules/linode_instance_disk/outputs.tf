@@ -1,3 +1,8 @@
+output "id" {
+  description = "The ID of the disk, as a config profile's device disk_id expects it."
+  value       = tonumber(linode_instance_disk.this.id)
+}
+
 output "created" {
   description = "When this disk was created."
   value       = linode_instance_disk.this.created

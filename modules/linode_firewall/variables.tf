@@ -119,6 +119,17 @@ variable "nodebalancers" {
   }
 }
 
+variable "interfaces" {
+  description = "IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall."
+  type        = list(number)
+  default     = []
+
+  validation {
+    condition     = alltrue([for id in var.interfaces : id > 0])
+    error_message = "Each interface ID must be a positive integer."
+  }
+}
+
 variable "tags" {
   description = "An array of tags applied to this object."
   type        = list(string)

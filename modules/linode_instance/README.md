@@ -19,13 +19,13 @@ Linode assigns the instance's address exactly as before.
 
 ```hcl
 module "reserved_ip" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_reserved_ip_protected?ref=v2.2.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_reserved_ip_protected?ref=v2.2.0"
 
   region = "us-east"
 }
 
 module "instance" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_instance?ref=v2.2.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_instance?ref=v2.2.0"
 
   region = "us-east"
   type   = "g6-nanode-1"
@@ -73,6 +73,66 @@ The address must already be reserved, in the instance's region.
 The `instance_ip_address` output is the first element of `ipv4`. With one
 reserved address and no other IPv4, that is the reserved address.
 
+## Linode Interfaces (`interface_generation`, `network_helper`)
+
+`interface_generation` picks the interface model the instance is created on:
+`"linode"` for Linode Interfaces, `"legacy_config"` for configuration profile
+interfaces. Unset (the default, `null`), the argument is omitted and the
+account's `interfaces_for_new_linodes` setting decides. `network_helper` sets
+Network Helper at creation; the API applies it to Linodes on Linode
+Interfaces only, and unset leaves it to the account's `network_helper`
+setting.
+
+Both are `ForceNew` in the provider (`linode/instance/schema_resource.go`,
+v4.10.0). Setting `interface_generation` on an instance that already exists
+replaces it, so it cannot move a running server onto Linode Interfaces; that
+upgrade is a Linode API call outside Terraform, and cannot be undone.
+
+On Linode Interfaces:
+
+- **The public interface is its own resource.** Use
+  [`../linode_interface`](../linode_interface). The provider also accepts
+  interfaces inline on `linode_instance` (`linode_interfaces`), but that
+  block conflicts with an explicit disk and config and is all `ForceNew`;
+  this module does not expose it.
+- **The firewall goes on the interface, not the instance.** The API
+  reserves the instance's `firewall_id` for legacy configuration profile
+  interfaces, and refuses a `linode` firewall device for a Linode on Linode
+  Interfaces. Pass `firewall_id` to `linode_interface`, or list the
+  interface in `linode_firewall`'s `interfaces`, never both. This module
+  refuses `firewall_id` at plan time when `interface_generation = "linode"`.
+  It cannot see the account default, so leaving `interface_generation`
+  unset skips that check.
+- **A GRUB 2 profile means an image-less instance.** The boot disk and the
+  config profile are then their own resources
+  ([`../linode_instance_disk`](../linode_instance_disk),
+  [`../linode_instance_config`](../linode_instance_config)), and the profile
+  sets `kernel = "linode/grub2"` and takes `interface_generation` from
+  this module's `interface_generation` output, which reports what the API
+  created even when the input was left to the account default.
+
+[`examples/linode_interfaces`](examples/linode_interfaces/main.tf) composes
+the whole shape: firewall, instance, public interface, boot disk and GRUB 2
+profile. The tests plan it.
+
+### Known provider issues
+
+- [linode/terraform-provider-linode#2457][p2457] (open): an update to a
+  `linode_instance` on Linode Interfaces, such as a label or alert change,
+  fails with `[helpers.network] Option cannot be set on a Linode that is
+  configured to use Linode Interfaces`. The reports are on instances whose
+  config is managed by `linode_instance` itself, and the maintainers could
+  not reproduce it with a simple config. Whether it reaches an instance
+  whose profile is its own `linode_instance_config` is not known: after the
+  first apply, plan a trivial instance change and check.
+- [linode/terraform-provider-linode#2358][p2358] (open): configuration
+  profile `interface` blocks do not work on Linode Interfaces. Declare
+  interfaces with `linode_interface`; `linode_instance_config` refuses an
+  `interface` entry when `interface_generation = "linode"`.
+
+[p2457]: https://github.com/linode/terraform-provider-linode/issues/2457
+[p2358]: https://github.com/linode/terraform-provider-linode/issues/2358
+
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
@@ -114,10 +174,12 @@ No modules.
 | <a name="input_disk_encryption"></a> [disk\_encryption](#input\_disk\_encryption) | The disk encryption policy for this instance. | `string` | `"enabled"` | no |
 | <a name="input_firewall_id"></a> [firewall\_id](#input\_firewall\_id) | The ID of the Firewall to attach to the instance upon creation. | `string` | `null` | no |
 | <a name="input_image"></a> [image](#input\_image) | An Image ID to deploy the Disk from. | `string` | `null` | no |
+| <a name="input_interface_generation"></a> [interface\_generation](#input\_interface\_generation) | The interface model the Linode is created on: linode (Linode Interfaces) or legacy\_config (configuration profile interfaces). Null (the default) omits the argument and the account's interfaces\_for\_new\_linodes setting decides. Changing it forces replacement; see the README. | `string` | `null` | no |
 | <a name="input_ipv4"></a> [ipv4](#input\_ipv4) | Reserved IPv4 addresses to assign to the Linode at creation. Null (the default) or an empty set omits the argument and Linode assigns an address as before. Changing it forces replacement; see the README. | `set(string)` | `null` | no |
 | <a name="input_label"></a> [label](#input\_label) | The Linode's label for display purposes. | `string` | `null` | no |
 | <a name="input_metadata"></a> [metadata](#input\_metadata) | The metadata configuration for the Linode instance. | <pre>object({<br/>    user_data = string<br/>  })</pre> | `null` | no |
 | <a name="input_migration_type"></a> [migration\_type](#input\_migration\_type) | The type of migration to use when updating the type or region of a Linode. | `string` | `"cold"` | no |
+| <a name="input_network_helper"></a> [network\_helper](#input\_network\_helper) | Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network\_helper setting decides. Changing it forces replacement; see the README. | `bool` | `null` | no |
 | <a name="input_placement_group_externally_managed"></a> [placement\_group\_externally\_managed](#input\_placement\_group\_externally\_managed) | If true, changes to the Linode's assigned Placement Group will be ignored. | `bool` | `false` | no |
 | <a name="input_placement_group_id"></a> [placement\_group\_id](#input\_placement\_group\_id) | The ID of the Placement Group to assign this Linode to. | `string` | `null` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | If true, the created Linode will have private networking enabled. | `bool` | `false` | no |
@@ -139,5 +201,6 @@ No modules.
 | <a name="output_instance_ip_address"></a> [instance\_ip\_address](#output\_instance\_ip\_address) | The public IP address of the Linode instance. |
 | <a name="output_instance_private_ip_address"></a> [instance\_private\_ip\_address](#output\_instance\_private\_ip\_address) | The private IP address of the Linode instance, if enabled. |
 | <a name="output_instance_status"></a> [instance\_status](#output\_instance\_status) | The status of the Linode instance. |
+| <a name="output_interface_generation"></a> [interface\_generation](#output\_interface\_generation) | The interface model the Linode runs on (linode or legacy\_config), as the API reports it. Pass it to linode\_instance\_config's interface\_generation, so a Linode the account put on Linode Interfaces by default is still treated as one. |
 <!-- markdownlint-restore -->
 <!-- END_TF_DOCS -->

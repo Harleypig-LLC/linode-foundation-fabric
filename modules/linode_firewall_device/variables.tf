@@ -19,12 +19,12 @@ variable "entity_id" {
 }
 
 variable "entity_type" {
-  description = "The type of the entity to create a Firewall device for."
+  description = "The type of the entity to create a Firewall device for: linode, nodebalancer, or linode_interface. Null (the default) lets the provider default it to linode. A Linode on Linode Interfaces takes linode_interface, with entity_id the interface's ID; the API refuses linode for it."
   type        = string
   default     = null
 
   validation {
-    condition     = var.entity_type == null || contains(["linode", "nodebalancer"], var.entity_type)
-    error_message = "Entity type must be either linode or nodebalancer."
+    condition     = var.entity_type == null || contains(["linode", "nodebalancer", "linode_interface"], var.entity_type)
+    error_message = "Entity type must be linode, nodebalancer, or linode_interface."
   }
 }

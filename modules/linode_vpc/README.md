@@ -8,7 +8,7 @@ separately by the consumer.
 
 ```hcl
 module "vpc" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_vpc?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_vpc?ref=v2.0.0"
 
   label  = "prod-vpc"
   region = "us-east"

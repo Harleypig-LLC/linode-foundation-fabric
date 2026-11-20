@@ -1,8 +1,8 @@
 # Linode Firewall Terraform Module
 
 This module creates and manages a Linode Cloud Firewall: inbound/outbound
-rules, default policies, and optional attachment to Linodes and/or
-NodeBalancers. It follows the repo's Cloud Foundation Fabric style
+rules, default policies, and optional attachment to Linodes, NodeBalancers
+and Linode Interfaces. It follows the repo's Cloud Foundation Fabric style
 (single-resource, validated inputs, plan-only tests).
 
 The default policies are **least-privilege**: `inbound_policy = "DROP"` (deny
@@ -12,7 +12,7 @@ inbound unless a rule allows it) and `outbound_policy = "ACCEPT"`.
 
 ```hcl
 module "web_firewall" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_firewall?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall?ref=v2.0.0"
 
   label   = "harleypig-com-web"
   linodes = [12345] # the instance(s) to govern
@@ -43,6 +43,29 @@ module "web_firewall" {
 
 An empty `inbound` with the default `inbound_policy = "DROP"` blocks all
 inbound traffic — add one rule per class of traffic you want to allow.
+
+## Linodes on Linode Interfaces
+
+A Linode on Linode Interfaces is governed through its interfaces: the API
+refuses a `linode` device for it. List the interface IDs in `interfaces`
+instead of the Linode in `linodes`:
+
+```hcl
+module "web_firewall" {
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall?ref=v2.4.0"
+
+  label      = "web-public"
+  interfaces = [module.public_interface.id]
+  inbound    = [] # rules as above
+}
+```
+
+Public and VPC interfaces only; a VLAN interface takes no firewall.
+
+Or attach the firewall when the interface is created, through
+`linode_interface`'s `firewall_id`. Use one of the two for a given
+interface, never both. The difference: `interfaces` here moves in place,
+while a change to `firewall_id` on the interface replaces the interface.
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-capture -->
@@ -78,6 +101,7 @@ No modules.
 | <a name="input_disabled"></a> [disabled](#input\_disabled) | If true, the Firewall's rules are not enforced. | `bool` | `false` | no |
 | <a name="input_inbound"></a> [inbound](#input\_inbound) | Inbound firewall rules. With the default inbound\_policy of DROP, an empty list blocks all inbound traffic; add one rule per class of traffic to allow. | <pre>list(object({<br/>    label    = string<br/>    action   = string<br/>    protocol = string<br/>    ports    = optional(string)<br/>    ipv4     = optional(list(string))<br/>    ipv6     = optional(list(string))<br/>  }))</pre> | `[]` | no |
 | <a name="input_inbound_policy"></a> [inbound\_policy](#input\_inbound\_policy) | Default behavior for inbound traffic not matched by a rule. Defaults to DROP for a least-privilege posture. | `string` | `"DROP"` | no |
+| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall. | `list(number)` | `[]` | no |
 | <a name="input_linodes"></a> [linodes](#input\_linodes) | IDs of Linodes this Firewall governs network traffic for. | `list(number)` | `[]` | no |
 | <a name="input_nodebalancers"></a> [nodebalancers](#input\_nodebalancers) | IDs of NodeBalancers this Firewall governs network traffic for. | `list(number)` | `[]` | no |
 | <a name="input_outbound"></a> [outbound](#input\_outbound) | Outbound firewall rules. With the default outbound\_policy of ACCEPT, an empty list permits all outbound traffic; add rules only to constrain it. | <pre>list(object({<br/>    label    = string<br/>    action   = string<br/>    protocol = string<br/>    ports    = optional(string)<br/>    ipv4     = optional(list(string))<br/>    ipv6     = optional(list(string))<br/>  }))</pre> | `[]` | no |
@@ -88,10 +112,11 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_devices"></a> [devices](#output\_devices) | The devices (Linodes/NodeBalancers) governed by the Firewall. |
+| <a name="output_devices"></a> [devices](#output\_devices) | The devices (Linodes, NodeBalancers, Linode Interfaces) governed by the Firewall. |
 | <a name="output_disabled"></a> [disabled](#output\_disabled) | Whether the Firewall's rules are currently not enforced. |
 | <a name="output_id"></a> [id](#output\_id) | The unique ID of this Firewall. |
 | <a name="output_inbound_policy"></a> [inbound\_policy](#output\_inbound\_policy) | The default behavior for inbound traffic. |
+| <a name="output_interfaces"></a> [interfaces](#output\_interfaces) | IDs of Linode Interfaces this Firewall governs. |
 | <a name="output_label"></a> [label](#output\_label) | This Firewall's unique label. |
 | <a name="output_linodes"></a> [linodes](#output\_linodes) | IDs of Linodes this Firewall governs. |
 | <a name="output_nodebalancers"></a> [nodebalancers](#output\_nodebalancers) | IDs of NodeBalancers this Firewall governs. |

@@ -38,8 +38,13 @@ output "nodebalancers" {
   value       = linode_firewall.this.nodebalancers
 }
 
+output "interfaces" {
+  description = "IDs of Linode Interfaces this Firewall governs."
+  value       = linode_firewall.this.interfaces
+}
+
 output "devices" {
-  description = "The devices (Linodes/NodeBalancers) governed by the Firewall."
+  description = "The devices (Linodes, NodeBalancers, Linode Interfaces) governed by the Firewall."
   value       = linode_firewall.this.devices
 }
 

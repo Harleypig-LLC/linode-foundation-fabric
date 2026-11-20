@@ -45,6 +45,7 @@ No modules.
 |------|-------------|
 | <a name="output_created"></a> [created](#output\_created) | When this disk was created. |
 | <a name="output_disk_encryption"></a> [disk\_encryption](#output\_disk\_encryption) | The disk encryption policy for this disk's parent instance. |
+| <a name="output_id"></a> [id](#output\_id) | The ID of the disk, as a config profile's device disk\_id expects it. |
 | <a name="output_status"></a> [status](#output\_status) | A brief description of this Disk's current state. |
 | <a name="output_updated"></a> [updated](#output\_updated) | When this disk was last updated. |
 <!-- markdownlint-restore -->

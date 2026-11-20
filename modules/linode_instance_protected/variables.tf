@@ -70,6 +70,23 @@ variable "ipv4" {
   }
 }
 
+variable "interface_generation" {
+  description = "The interface model the Linode is created on: linode (Linode Interfaces) or legacy_config (configuration profile interfaces). Null (the default) omits the argument and the account's interfaces_for_new_linodes setting decides. Changing it forces replacement; see the README."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.interface_generation == null || contains(["linode", "legacy_config"], var.interface_generation)
+    error_message = "interface_generation must be linode or legacy_config when set."
+  }
+}
+
+variable "network_helper" {
+  description = "Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network_helper setting decides. Read at creation only: this module ignores later changes (they plan nothing); change it on a running Linode through its interface settings. See the README."
+  type        = bool
+  default     = null
+}
+
 variable "placement_group_externally_managed" {
   description = "If true, changes to the Linode's assigned Placement Group will be ignored."
   type        = bool

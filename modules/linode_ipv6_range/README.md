@@ -8,7 +8,7 @@ This module creates and manages a Linode IPv6 range, assigning a routed /56 or
 
 ```hcl
 module "ipv6_range" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_ipv6_range?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_ipv6_range?ref=v2.0.0"
 
   prefix_length = 64
   linode_id     = 12345

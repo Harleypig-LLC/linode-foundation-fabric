@@ -1,7 +1,8 @@
 # Linode Firewall Device Terraform Module
 
 This module manages a single Linode Firewall Device — the attachment binding
-one entity (a Linode instance or NodeBalancer) to an existing Cloud Firewall.
+one entity (a Linode instance, a NodeBalancer, or a Linode Interface) to an
+existing Cloud Firewall.
 It manages only the device link; the Firewall and the entity are created
 elsewhere and referenced here by ID.
 
@@ -9,12 +10,32 @@ elsewhere and referenced here by ID.
 
 ```hcl
 module "firewall_device" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_firewall_device?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall_device?ref=v2.0.0"
 
   firewall_id = 123456
   entity_id   = 654321
 }
 ```
+
+## Linodes on Linode Interfaces
+
+`entity_type` defaults to `linode` in the provider, and the API refuses a
+`linode` device for a Linode on Linode Interfaces. Attach to its interface
+instead, with the interface's ID:
+
+```hcl
+module "firewall_device" {
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall_device?ref=v2.4.0"
+
+  firewall_id = module.web_firewall.id
+  entity_id   = module.public_interface.id
+  entity_type = "linode_interface"
+}
+```
+
+The API takes `linode_interface` for public and VPC Linode Interfaces only,
+and never for legacy configuration profile interfaces. `entity_type` is
+`RequiresReplace` in the provider, so changing it replaces the attachment.
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-capture -->
@@ -48,7 +69,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_entity_id"></a> [entity\_id](#input\_entity\_id) | The ID of the entity to create a Firewall device for. | `number` | n/a | yes |
 | <a name="input_firewall_id"></a> [firewall\_id](#input\_firewall\_id) | The ID of the Firewall to access. | `number` | n/a | yes |
-| <a name="input_entity_type"></a> [entity\_type](#input\_entity\_type) | The type of the entity to create a Firewall device for. | `string` | `null` | no |
+| <a name="input_entity_type"></a> [entity\_type](#input\_entity\_type) | The type of the entity to create a Firewall device for: linode, nodebalancer, or linode\_interface. Null (the default) lets the provider default it to linode. A Linode on Linode Interfaces takes linode\_interface, with entity\_id the interface's ID; the API refuses linode for it. | `string` | `null` | no |
 
 ## Outputs
 
