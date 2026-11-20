@@ -38,11 +38,47 @@ run "rejects_non_positive_entity_id" {
   expect_failures = [var.entity_id]
 }
 
+run "accepts_linode_interface_entity_type" {
+  command = plan
+
+  variables {
+    entity_type = "linode_interface" # a Linode on Linode Interfaces
+  }
+
+  assert {
+    condition     = linode_firewall_device.this.entity_type == "linode_interface"
+    error_message = "entity_type linode_interface should pass through"
+  }
+}
+
+run "accepts_nodebalancer_entity_type" {
+  command = plan
+
+  variables {
+    entity_type = "nodebalancer"
+  }
+
+  assert {
+    condition     = linode_firewall_device.this.entity_type == "nodebalancer"
+    error_message = "entity_type nodebalancer should pass through"
+  }
+}
+
 run "rejects_invalid_entity_type" {
   command = plan
 
   variables {
-    entity_type = "bogus" # not linode or nodebalancer
+    entity_type = "bogus" # not linode, nodebalancer, or linode_interface
+  }
+
+  expect_failures = [var.entity_type]
+}
+
+run "rejects_interface_spelling" {
+  command = plan
+
+  variables {
+    entity_type = "interface" # the API value is linode_interface
   }
 
   expect_failures = [var.entity_type]

@@ -28,6 +28,8 @@ resource "linode_instance" "instance" {
   backup_id                          = var.backup_id
   resize_disk                        = var.resize_disk
   placement_group_externally_managed = var.placement_group_externally_managed
+  interface_generation               = var.interface_generation
+  network_helper                     = var.network_helper
 
   dynamic "metadata" {
     for_each = var.metadata != null ? [var.metadata] : []

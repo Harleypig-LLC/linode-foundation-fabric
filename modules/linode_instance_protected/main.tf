@@ -36,6 +36,8 @@ resource "linode_instance" "instance" {
   backup_id                          = var.backup_id
   resize_disk                        = var.resize_disk
   placement_group_externally_managed = var.placement_group_externally_managed
+  interface_generation               = var.interface_generation
+  network_helper                     = var.network_helper
 
   dynamic "metadata" {
     for_each = var.metadata != null ? [var.metadata] : []
@@ -86,10 +88,13 @@ resource "linode_instance" "instance" {
     # or regenerated value would take the server down on an ordinary apply. It
     # is the initial password; rotating it is the host's job.
     #
+    # network_helper is read at creation only and never read back; later
+    # changes go through the Linode's interface settings, not a rebuild.
+    #
     # Left out on purpose: type and region (resized or migrated in place), and
-    # disk_encryption (ForceNew, but ignoring it would leave config claiming an
-    # encryption state the disk does not have, so the plan is left to fail on
-    # prevent_destroy instead).
+    # disk_encryption and interface_generation (ForceNew and read back, so
+    # ignoring either would leave config claiming a state the server does not
+    # have; the plan is left to fail on prevent_destroy instead).
     ignore_changes = [
       metadata,         # cloud-init user_data: consumed at first boot only
       authorized_keys,  # written to root's authorized_keys at disk deploy
@@ -101,6 +106,7 @@ resource "linode_instance" "instance" {
       ipv4,             # create-time address; later IPs are other resources
       firewall_id,      # create-time attachment; later via firewall devices
       root_pass,        # see above: a change power-cycles the server
+      network_helper,   # create-time; see above
     ]
   }
 }

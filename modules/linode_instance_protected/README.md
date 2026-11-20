@@ -22,7 +22,7 @@ marks it `ForceNew`, and with the base module one `yes` deletes the server.
 
 ```hcl
 module "web" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_instance_protected?ref=v2.3.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_instance_protected?ref=v2.3.0"
 
   label           = "web-1"
   region          = "us-east"
@@ -55,6 +55,7 @@ provider's only answer is a replacement.
 | `backup_id` | the backup restored at creation |
 | `ipv4` | the address assigned at creation; the provider reads back every IPv4 the instance holds, so an address added later would otherwise force a replacement |
 | `firewall_id` | the firewall attached at creation; attach or move firewalls afterwards with `linode_firewall_device` |
+| `network_helper` | Network Helper's state at creation on Linode Interfaces; the provider never reads it back, and a later change is made through the Linode's interface settings |
 
 `root_pass` is ignored too, for a different reason. It is not `ForceNew`:
 the provider applies a change by powering the server off, resetting the
@@ -94,6 +95,11 @@ expect a plan to show:
   change fails the plan on `prevent_destroy` instead. So does an existing
   instance whose encryption differs from the input (the default is
   `"enabled"`) when it is first moved to this module.
+- `interface_generation`: `ForceNew` and read back, so ignoring it would
+  leave the configuration claiming an interface model the server is not on.
+  A change fails the plan on `prevent_destroy` instead. Leave it unset
+  (`null`) when moving an existing instance here unless it matches what the
+  server already runs.
 - Everything else the base module exposes (labels, tags, backups, alerts,
   placement group, and so on), which the provider updates in place.
 
@@ -270,10 +276,12 @@ No modules.
 | <a name="input_disk_encryption"></a> [disk\_encryption](#input\_disk\_encryption) | The disk encryption policy for this instance. | `string` | `"enabled"` | no |
 | <a name="input_firewall_id"></a> [firewall\_id](#input\_firewall\_id) | The ID of the Firewall to attach to the instance upon creation. | `string` | `null` | no |
 | <a name="input_image"></a> [image](#input\_image) | An Image ID to deploy the Disk from. | `string` | `null` | no |
+| <a name="input_interface_generation"></a> [interface\_generation](#input\_interface\_generation) | The interface model the Linode is created on: linode (Linode Interfaces) or legacy\_config (configuration profile interfaces). Null (the default) omits the argument and the account's interfaces\_for\_new\_linodes setting decides. Changing it forces replacement; see the README. | `string` | `null` | no |
 | <a name="input_ipv4"></a> [ipv4](#input\_ipv4) | Reserved IPv4 addresses to assign to the Linode at creation. Null (the default) or an empty set omits the argument and Linode assigns an address as before. Changing it forces replacement; see the README. | `set(string)` | `null` | no |
 | <a name="input_label"></a> [label](#input\_label) | The Linode's label for display purposes. | `string` | `null` | no |
 | <a name="input_metadata"></a> [metadata](#input\_metadata) | The metadata configuration for the Linode instance. | <pre>object({<br/>    user_data = string<br/>  })</pre> | `null` | no |
 | <a name="input_migration_type"></a> [migration\_type](#input\_migration\_type) | The type of migration to use when updating the type or region of a Linode. | `string` | `"cold"` | no |
+| <a name="input_network_helper"></a> [network\_helper](#input\_network\_helper) | Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network\_helper setting decides. Changing it forces replacement; see the README. | `bool` | `null` | no |
 | <a name="input_placement_group_externally_managed"></a> [placement\_group\_externally\_managed](#input\_placement\_group\_externally\_managed) | If true, changes to the Linode's assigned Placement Group will be ignored. | `bool` | `false` | no |
 | <a name="input_placement_group_id"></a> [placement\_group\_id](#input\_placement\_group\_id) | The ID of the Placement Group to assign this Linode to. | `string` | `null` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | If true, the created Linode will have private networking enabled. | `bool` | `false` | no |

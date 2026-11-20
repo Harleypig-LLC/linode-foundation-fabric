@@ -77,8 +77,19 @@ variable "virt_mode" {
   }
 }
 
+variable "interface_generation" {
+  description = "The interface model of the Linode this profile belongs to: linode (Linode Interfaces) or legacy_config. Pass the Linode's own value. With linode, an omitted helpers.network defaults to false rather than true, and helpers.network = true and any interface entry are refused. Null (the default) behaves as legacy_config."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.interface_generation == null || contains(["linode", "legacy_config"], var.interface_generation)
+    error_message = "interface_generation must be linode or legacy_config when set."
+  }
+}
+
 variable "helpers" {
-  description = "Helpers enabled when booting to this Linode Config."
+  description = "Helpers enabled when booting to this Linode Config. An empty map (the default) omits the block. When any helper is set, an omitted one defaults to true, except network on a Linode on Linode Interfaces (see interface_generation)."
   type        = map(bool)
   default     = {}
 }

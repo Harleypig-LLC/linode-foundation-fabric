@@ -33,6 +33,7 @@ variables {
   stackscript_id   = 2002
   stackscript_data = { role = "web" }
   metadata         = { user_data = "#cloud-config\ntimezone: UTC\n" }
+  network_helper   = false
 }
 
 run "create" {
@@ -184,5 +185,36 @@ run "root_pass_change_plans_no_change" {
   assert {
     condition     = nonsensitive(linode_instance.instance.root_pass == null)
     error_message = "a root_pass set after creation must not reach the plan; it would power-cycle the server"
+  }
+}
+
+# network_helper is read at creation only; a later change goes through the
+# Linode's interface settings, so it must not plan a replacement here.
+run "network_helper_change_plans_no_change" {
+  command = plan
+
+  variables {
+    network_helper = true
+  }
+
+  assert {
+    condition     = linode_instance.instance.network_helper == false
+    error_message = "a changed network_helper must not reach the plan"
+  }
+}
+
+# interface_generation is deliberately not ignored: it is read back, so a
+# change must reach the plan (where the real provider's ForceNew then fails
+# it on prevent_destroy).
+run "interface_generation_change_still_plans" {
+  command = plan
+
+  variables {
+    interface_generation = "linode"
+  }
+
+  assert {
+    condition     = linode_instance.instance.interface_generation == "linode"
+    error_message = "interface_generation is not ignored; a change must reach the plan"
   }
 }

@@ -8,7 +8,7 @@ own `for_each`; this module wraps exactly one subnet.
 
 ```hcl
 module "vpc_subnet" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_vpc_subnet?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_vpc_subnet?ref=v2.0.0"
 
   vpc_id = 12345
   label  = "app-subnet"

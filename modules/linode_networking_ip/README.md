@@ -8,7 +8,7 @@ held at the account or region level.
 
 ```hcl
 module "networking_ip" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_networking_ip?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_networking_ip?ref=v2.0.0"
 
   linode_id = 12345
   public    = true

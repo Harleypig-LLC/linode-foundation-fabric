@@ -9,7 +9,7 @@ PostgreSQL engine tuning parameters.
 
 ```hcl
 module "database_postgresql_v2" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_database_postgresql_v2?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_database_postgresql_v2?ref=v2.0.0"
 
   engine_id = "postgresql/16"
   label     = "app-primary-db"

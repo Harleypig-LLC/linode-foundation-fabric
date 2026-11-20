@@ -19,7 +19,7 @@ provider "linode" {
 }
 
 module "lock" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_lock?ref=v2.1.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_lock?ref=v2.1.0"
 
   entity_id   = linode_volume.data.id
   entity_type = "volume"

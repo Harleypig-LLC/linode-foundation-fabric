@@ -8,7 +8,7 @@ the rest). Grants only take effect for a `restricted` user.
 
 ```hcl
 module "user" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_user?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_user?ref=v2.0.0"
 
   username = "ci-deployer"
   email    = "ci-deployer@example.com"

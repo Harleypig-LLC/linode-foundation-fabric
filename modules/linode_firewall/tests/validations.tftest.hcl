@@ -172,3 +172,36 @@ run "example_basic_plans" {
     source = "./examples/basic"
   }
 }
+
+# A Linode on Linode Interfaces is governed through its interface IDs.
+run "interfaces_pass_through" {
+  command = plan
+
+  variables {
+    interfaces = [101, 102]
+  }
+
+  assert {
+    condition     = linode_firewall.this.interfaces == toset([101, 102])
+    error_message = "the interface IDs should be planned on the firewall"
+  }
+}
+
+run "interfaces_default_empty" {
+  command = plan
+
+  assert {
+    condition     = length(var.interfaces) == 0
+    error_message = "interfaces should default to an empty list"
+  }
+}
+
+run "rejects_non_positive_interface_id" {
+  command = plan
+
+  variables {
+    interfaces = [0] # must be positive
+  }
+
+  expect_failures = [var.interfaces]
+}

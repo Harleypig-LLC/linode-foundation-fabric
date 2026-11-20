@@ -8,7 +8,7 @@ to a Linode instance. An interface is exactly one of three kinds: `public`,
 
 ```hcl
 module "interface" {
-  source = "github.com/harleypig/linode-foundation-fabric//modules/linode_interface?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_interface?ref=v2.0.0"
 
   linode_id = 12345
 

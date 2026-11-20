@@ -1,3 +1,12 @@
+locals {
+  # helpers.network applies to legacy configuration profile interfaces only.
+  # The provider sends every helper as a plain bool whenever a helpers block
+  # exists, and the API refuses network = true on a Linode on Linode
+  # Interfaces (provider issue #2457), so its default flips with the model.
+  linode_interfaces       = var.interface_generation == "linode"
+  helpers_network_default = !local.linode_interfaces
+}
+
 resource "linode_instance_config" "this" {
   linode_id    = var.linode_id
   label        = var.label
@@ -15,7 +24,7 @@ resource "linode_instance_config" "this" {
       devtmpfs_automount = lookup(helpers.value, "devtmpfs_automount", true)
       distro             = lookup(helpers.value, "distro", true)
       modules_dep        = lookup(helpers.value, "modules_dep", true)
-      network            = lookup(helpers.value, "network", true)
+      network            = lookup(helpers.value, "network", local.helpers_network_default)
       updatedb_disabled  = lookup(helpers.value, "updatedb_disabled", true)
     }
   }
@@ -45,6 +54,18 @@ resource "linode_instance_config" "this" {
           nat_1_1 = lookup(ipv4.value, "nat_1_1", null)
         }
       }
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = !(local.linode_interfaces && lookup(var.helpers, "network", false))
+      error_message = "helpers.network = true cannot be set on a Linode on Linode Interfaces; the API refuses it. Omit it or set it to false."
+    }
+
+    precondition {
+      condition     = !(local.linode_interfaces && length(var.interface) > 0)
+      error_message = "A Linode on Linode Interfaces takes no configuration profile interfaces; declare its interfaces with linode_interface instead."
     }
   }
 }

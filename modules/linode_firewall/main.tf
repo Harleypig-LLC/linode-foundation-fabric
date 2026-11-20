@@ -1,7 +1,7 @@
-# ICEBOX: applying a custom least-privilege cloud firewall to harleypig-com is
-# deferred — single host, Linode's default firewall suffices. Revisit on
-# topology growth (more hosts, a NodeBalancer, services needing tighter
-# ingress). The module below is ready to deploy; see README.md.
+# A Linode on Linode Interfaces is governed through its interfaces, not the
+# Linode: the API refuses a `linode` device for it. List its interface IDs in
+# `interfaces` (or attach with linode_firewall_device, entity_type
+# linode_interface); see README.md.
 
 resource "linode_firewall" "this" {
   label    = var.label
@@ -13,6 +13,7 @@ resource "linode_firewall" "this" {
 
   linodes       = var.linodes
   nodebalancers = var.nodebalancers
+  interfaces    = var.interfaces
 
   dynamic "inbound" {
     for_each = var.inbound
