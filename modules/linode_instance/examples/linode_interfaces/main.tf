@@ -66,6 +66,6 @@ module "boot_config" {
   linode_id            = module.instance.instance_id
   label                = "boot"
   kernel               = "linode/grub2"
-  interface_generation = "linode"
+  interface_generation = module.instance.interface_generation
   devices              = [{ device_name = "sda", disk_id = module.boot_disk.id }]
 }

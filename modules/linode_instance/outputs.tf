@@ -17,3 +17,8 @@ output "instance_status" {
   description = "The status of the Linode instance."
   value       = linode_instance.instance.status
 }
+
+output "interface_generation" {
+  description = "The interface model the Linode runs on (linode or legacy_config), as the API reports it. Pass it to linode_instance_config's interface_generation, so a Linode the account put on Linode Interfaces by default is still treated as one."
+  value       = linode_instance.instance.interface_generation
+}

@@ -125,3 +125,18 @@ run "rejects_unknown_interface_generation" {
 
   expect_failures = [var.interface_generation]
 }
+
+# A null helper value is the same as leaving it out: on Linode Interfaces,
+# network must still go out as false, and the guard must still evaluate.
+run "null_network_helper_is_treated_as_omitted" {
+  command = plan
+
+  variables {
+    helpers = { network = null, updatedb_disabled = false }
+  }
+
+  assert {
+    condition     = linode_instance_config.this.helpers[0].network == false
+    error_message = "a null helpers.network must be sent as false on Linode Interfaces, not left to the provider's default of true"
+  }
+}

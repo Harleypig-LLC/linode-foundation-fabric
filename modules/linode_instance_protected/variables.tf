@@ -82,7 +82,7 @@ variable "interface_generation" {
 }
 
 variable "network_helper" {
-  description = "Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network_helper setting decides. Changing it forces replacement; see the README."
+  description = "Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network_helper setting decides. Read at creation only: this module ignores later changes (they plan nothing); change it on a running Linode through its interface settings. See the README."
   type        = bool
   default     = null
 }

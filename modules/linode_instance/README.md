@@ -99,12 +99,17 @@ On Linode Interfaces:
   reserves the instance's `firewall_id` for legacy configuration profile
   interfaces, and refuses a `linode` firewall device for a Linode on Linode
   Interfaces. Pass `firewall_id` to `linode_interface`, or list the
-  interface in `linode_firewall`'s `interfaces`, never both.
+  interface in `linode_firewall`'s `interfaces`, never both. This module
+  refuses `firewall_id` at plan time when `interface_generation = "linode"`.
+  It cannot see the account default, so leaving `interface_generation`
+  unset skips that check.
 - **A GRUB 2 profile means an image-less instance.** The boot disk and the
   config profile are then their own resources
   ([`../linode_instance_disk`](../linode_instance_disk),
   [`../linode_instance_config`](../linode_instance_config)), and the profile
-  sets `kernel = "linode/grub2"` and `interface_generation = "linode"`.
+  sets `kernel = "linode/grub2"` and takes `interface_generation` from
+  this module's `interface_generation` output, which reports what the API
+  created even when the input was left to the account default.
 
 [`examples/linode_interfaces`](examples/linode_interfaces/main.tf) composes
 the whole shape: firewall, instance, public interface, boot disk and GRUB 2
@@ -196,5 +201,6 @@ No modules.
 | <a name="output_instance_ip_address"></a> [instance\_ip\_address](#output\_instance\_ip\_address) | The public IP address of the Linode instance. |
 | <a name="output_instance_private_ip_address"></a> [instance\_private\_ip\_address](#output\_instance\_private\_ip\_address) | The private IP address of the Linode instance, if enabled. |
 | <a name="output_instance_status"></a> [instance\_status](#output\_instance\_status) | The status of the Linode instance. |
+| <a name="output_interface_generation"></a> [interface\_generation](#output\_interface\_generation) | The interface model the Linode runs on (linode or legacy\_config), as the API reports it. Pass it to linode\_instance\_config's interface\_generation, so a Linode the account put on Linode Interfaces by default is still treated as one. |
 <!-- markdownlint-restore -->
 <!-- END_TF_DOCS -->

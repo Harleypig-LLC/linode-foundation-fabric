@@ -78,7 +78,7 @@ variable "virt_mode" {
 }
 
 variable "interface_generation" {
-  description = "The interface model of the Linode this profile belongs to: linode (Linode Interfaces) or legacy_config. Pass the Linode's own value. With linode, an omitted helpers.network defaults to false rather than true, and helpers.network = true and any interface entry are refused. Null (the default) behaves as legacy_config."
+  description = "The interface model of the Linode this profile belongs to: linode (Linode Interfaces) or legacy_config. Pass the Linode's own value, the instance module's interface_generation output. With linode, an omitted helpers.network defaults to false rather than true, and helpers.network = true and any interface entry are refused. Null (the default) behaves as legacy_config."
   type        = string
   default     = null
 

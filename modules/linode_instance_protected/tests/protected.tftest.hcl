@@ -211,6 +211,7 @@ run "interface_generation_change_still_plans" {
 
   variables {
     interface_generation = "linode"
+    firewall_id          = null # refused alongside linode; see interfaces.tftest.hcl
   }
 
   assert {

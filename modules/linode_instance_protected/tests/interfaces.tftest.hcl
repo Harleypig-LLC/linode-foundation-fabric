@@ -98,3 +98,55 @@ run "rejects_empty_interface_generation" {
 
   expect_failures = [var.interface_generation]
 }
+
+# The API reserves the instance's firewall_id for legacy configuration
+# profile interfaces; on Linode Interfaces the firewall goes on the
+# interface.
+run "rejects_firewall_id_on_linode_interfaces" {
+  command = plan
+
+  variables {
+    interface_generation = "linode"
+    firewall_id          = "1001"
+  }
+
+  expect_failures = [linode_instance.instance]
+}
+
+run "allows_firewall_id_on_legacy_config" {
+  command = plan
+
+  variables {
+    interface_generation = "legacy_config"
+    firewall_id          = "1001"
+  }
+
+  assert {
+    condition     = linode_instance.instance.firewall_id == 1001
+    error_message = "a legacy-config instance may still take a firewall_id"
+  }
+}
+
+# The output carries the API's value, not the input, so an instance left to
+# the account default still reports which model it runs on.
+run "interface_generation_output_reports_computed_value" {
+  command = plan
+
+  assert {
+    condition     = output.interface_generation == "legacy_config"
+    error_message = "with the input unset the output should carry the provider's computed value"
+  }
+}
+
+run "interface_generation_output_reports_configured_value" {
+  command = plan
+
+  variables {
+    interface_generation = "linode"
+  }
+
+  assert {
+    condition     = output.interface_generation == "linode"
+    error_message = "the output should carry the configured interface_generation"
+  }
+}

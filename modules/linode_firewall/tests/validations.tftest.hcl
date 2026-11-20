@@ -191,8 +191,8 @@ run "interfaces_default_empty" {
   command = plan
 
   assert {
-    condition     = length(var.interfaces) == 0
-    error_message = "interfaces should default to an empty list"
+    condition     = length(linode_firewall.this.interfaces) == 0
+    error_message = "with interfaces unset the firewall should plan no interface devices"
   }
 }
 

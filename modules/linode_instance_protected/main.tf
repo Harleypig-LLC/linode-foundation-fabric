@@ -76,6 +76,11 @@ resource "linode_instance" "instance" {
   lifecycle {
     prevent_destroy = true
 
+    precondition {
+      condition     = !(var.interface_generation == "linode" && var.firewall_id != null)
+      error_message = "firewall_id cannot be set when interface_generation is linode; the API reserves it for legacy configuration profile interfaces. Attach the firewall to the Linode's interface instead (linode_interface's firewall_id, or linode_firewall's interfaces)."
+    }
+
     # Read once, when the instance and its boot disk are created, and ForceNew
     # in the provider (schema_resource.go, every release v4.0.0-v4.7.0). The
     # provider never reads them back, ipv4 aside. A later change to any of

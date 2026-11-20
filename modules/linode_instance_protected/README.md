@@ -281,7 +281,7 @@ No modules.
 | <a name="input_label"></a> [label](#input\_label) | The Linode's label for display purposes. | `string` | `null` | no |
 | <a name="input_metadata"></a> [metadata](#input\_metadata) | The metadata configuration for the Linode instance. | <pre>object({<br/>    user_data = string<br/>  })</pre> | `null` | no |
 | <a name="input_migration_type"></a> [migration\_type](#input\_migration\_type) | The type of migration to use when updating the type or region of a Linode. | `string` | `"cold"` | no |
-| <a name="input_network_helper"></a> [network\_helper](#input\_network\_helper) | Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network\_helper setting decides. Changing it forces replacement; see the README. | `bool` | `null` | no |
+| <a name="input_network_helper"></a> [network\_helper](#input\_network\_helper) | Whether Network Helper is enabled for the Linode, set at creation. Applies to Linodes on Linode Interfaces only. Null (the default) omits the argument and the account's network\_helper setting decides. Read at creation only: this module ignores later changes (they plan nothing); change it on a running Linode through its interface settings. See the README. | `bool` | `null` | no |
 | <a name="input_placement_group_externally_managed"></a> [placement\_group\_externally\_managed](#input\_placement\_group\_externally\_managed) | If true, changes to the Linode's assigned Placement Group will be ignored. | `bool` | `false` | no |
 | <a name="input_placement_group_id"></a> [placement\_group\_id](#input\_placement\_group\_id) | The ID of the Placement Group to assign this Linode to. | `string` | `null` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | If true, the created Linode will have private networking enabled. | `bool` | `false` | no |
@@ -303,5 +303,6 @@ No modules.
 | <a name="output_instance_ip_address"></a> [instance\_ip\_address](#output\_instance\_ip\_address) | The public IP address of the Linode instance. |
 | <a name="output_instance_private_ip_address"></a> [instance\_private\_ip\_address](#output\_instance\_private\_ip\_address) | The private IP address of the Linode instance, if enabled. |
 | <a name="output_instance_status"></a> [instance\_status](#output\_instance\_status) | The status of the Linode instance. |
+| <a name="output_interface_generation"></a> [interface\_generation](#output\_interface\_generation) | The interface model the Linode runs on (linode or legacy\_config), as the API reports it. Pass it to linode\_instance\_config's interface\_generation, so a Linode the account put on Linode Interfaces by default is still treated as one. |
 <!-- markdownlint-restore -->
 <!-- END_TF_DOCS -->
