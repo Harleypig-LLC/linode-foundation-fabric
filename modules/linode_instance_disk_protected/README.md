@@ -60,8 +60,15 @@ configuration-management layer's job, against the host.
 
 **Deliberately not ignored:**
 
-- `label` and `size`: updated in place by the provider. A larger `size` is a
-  resize, which the provider applies with the Linode shut down.
+- `label` and `size`: updated in place, with no replacement. **A `size`
+  change is not harmless.** The provider shuts a running Linode down for
+  the resize and boots it again afterwards (`runDiskOperation` in
+  `linode/instancedisk/helper.go`, v4.10.0), so the apply takes the server
+  offline. With `skip_implicit_reboots` set in the provider, the apply fails
+  instead. A shrink cannot go below the space the disk's files take up:
+  *"it cannot be made smaller than what is required by the total size of
+  the files current on the Disk"* (Linode API, *Resize a disk*, read
+  2026-11-20). Below that, the resize fails at apply rather than at plan.
 - `filesystem` and `linode_id`: `RequiresReplace` and read back, so ignoring
   either would leave the configuration claiming a disk that is not there. A
   change fails the plan on `prevent_destroy` instead.

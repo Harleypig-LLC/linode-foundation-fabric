@@ -29,6 +29,7 @@ variables {
   authorized_users = ["alice"]
   stackscript_id   = 2002
   stackscript_data = { role = "web" }
+  root_pass        = "initial-Passw0rd-only-for-the-mock"
 }
 
 run "create" {
@@ -85,6 +86,19 @@ run "stackscript_change_plans_no_change" {
   assert {
     condition     = linode_instance_disk.this.stackscript_id == 2002 && linode_instance_disk.this.stackscript_data == tomap({ role = "web" })
     error_message = "a changed StackScript must not reach the plan"
+  }
+}
+
+run "root_pass_change_plans_no_change" {
+  command = plan
+
+  variables {
+    root_pass = "rotated-Passw0rd-only-for-the-mock"
+  }
+
+  assert {
+    condition     = nonsensitive(linode_instance_disk.this.root_pass) == "initial-Passw0rd-only-for-the-mock"
+    error_message = "a changed root_pass must not reach the plan"
   }
 }
 
