@@ -1,3 +1,14 @@
+# Linode Instance Disk Terraform Module
+
+This module creates and manages one disk on a Linode, wrapping the
+`linode_instance_disk` resource.
+
+It has no `lifecycle` guard. A change to a deploy-time attribute such as
+`image` or `authorized_keys` replaces the disk and erases it, and a module
+call cannot add `prevent_destroy` or `ignore_changes`. For a disk that holds
+data, such as an image-less Linode's boot disk, use
+[`../linode_instance_disk_protected`](../linode_instance_disk_protected).
+
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
