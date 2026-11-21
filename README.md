@@ -30,6 +30,7 @@ Each module under `modules/` wraps the Linode resource of the same name:
 | `linode_instance_protected` | `linode_instance` (delete-protected; create-time attributes ignored) |
 | `linode_instance_config` | `linode_instance_config` |
 | `linode_instance_disk` | `linode_instance_disk` |
+| `linode_instance_disk_protected` | `linode_instance_disk` (delete-protected; deploy-time attributes ignored) |
 | `linode_instance_ip` | `linode_instance_ip` |
 | `linode_instance_shared_ips` | `linode_instance_shared_ips` |
 | `linode_interface` | `linode_interface` |
