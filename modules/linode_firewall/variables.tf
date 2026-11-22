@@ -120,12 +120,15 @@ variable "nodebalancers" {
 }
 
 variable "interfaces" {
-  description = "IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall."
+  description = "IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall. Leave null when the interfaces are attached by their own firewall_id: the attachments are then read back, not managed."
   type        = list(number)
-  default     = []
+  default     = null
 
+  # null, not []: the provider reads every attached interface back into this
+  # attribute, so an explicit [] would detach an interface that was created
+  # with this firewall's ID on the next apply.
   validation {
-    condition     = alltrue([for id in var.interfaces : id > 0])
+    condition     = var.interfaces == null || alltrue([for id in var.interfaces : id > 0])
     error_message = "Each interface ID must be a positive integer."
   }
 }

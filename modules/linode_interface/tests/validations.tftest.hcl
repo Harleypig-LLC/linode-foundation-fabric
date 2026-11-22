@@ -5,8 +5,9 @@
 mock_provider "linode" {}
 
 variables {
-  linode_id = 12345
-  public    = {}
+  linode_id   = 12345
+  firewall_id = 1001
+  public      = {}
 }
 
 run "valid_interface_plans" {
@@ -15,6 +16,65 @@ run "valid_interface_plans" {
   assert {
     condition     = linode_interface.this.linode_id == 12345
     error_message = "planned interface linode_id should match the input"
+  }
+
+  assert {
+    condition     = linode_interface.this.firewall_id == 1001
+    error_message = "the interface should be created with the given firewall_id"
+  }
+}
+
+# An interface sent with no firewall_id takes the account's default firewall,
+# or fails to create when there is none; neither is this configuration's.
+run "rejects_public_interface_without_firewall" {
+  command = plan
+
+  variables {
+    firewall_id = null
+  }
+
+  expect_failures = [var.firewall_id]
+}
+
+run "rejects_vpc_interface_without_firewall" {
+  command = plan
+
+  variables {
+    firewall_id = null
+    public      = null
+    vpc = {
+      subnet_id = 42
+    }
+  }
+
+  expect_failures = [var.firewall_id]
+}
+
+# The API's explicit opt-out: no firewall at all.
+run "rejects_firewall_opt_out" {
+  command = plan
+
+  variables {
+    firewall_id = -1
+  }
+
+  expect_failures = [var.firewall_id]
+}
+
+run "vlan_interface_needs_no_firewall" {
+  command = plan
+
+  variables {
+    firewall_id = null
+    public      = null
+    vlan = {
+      vlan_label = "backplane"
+    }
+  }
+
+  assert {
+    condition     = linode_interface.this.firewall_id == null
+    error_message = "a VLAN interface takes no firewall_id"
   }
 }
 
@@ -42,7 +102,8 @@ run "rejects_vlan_label_bad_start" {
   command = plan
 
   variables {
-    public = null
+    firewall_id = null
+    public      = null
     vlan = {
       vlan_label = "-bad" # must start with an alphanumeric character
     }
@@ -55,7 +116,8 @@ run "rejects_vlan_label_too_long" {
   command = plan
 
   variables {
-    public = null
+    firewall_id = null
+    public      = null
     vlan = {
       # 65 characters, exceeding the 64-character maximum
       vlan_label = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

@@ -187,14 +187,8 @@ run "interfaces_pass_through" {
   }
 }
 
-run "interfaces_default_empty" {
-  command = plan
-
-  assert {
-    condition     = length(linode_firewall.this.interfaces) == 0
-    error_message = "with interfaces unset the firewall should plan no interface devices"
-  }
-}
+# interfaces left unset is tested in interfaces.tftest.hcl, whose mock reads
+# an attachment back at plan time.
 
 run "rejects_non_positive_interface_id" {
   command = plan

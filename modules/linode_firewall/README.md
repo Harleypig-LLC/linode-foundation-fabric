@@ -47,25 +47,39 @@ inbound traffic — add one rule per class of traffic you want to allow.
 ## Linodes on Linode Interfaces
 
 A Linode on Linode Interfaces is governed through its interfaces: the API
-refuses a `linode` device for it. List the interface IDs in `interfaces`
-instead of the Linode in `linodes`:
+refuses a `linode` device for it. Attach the firewall when the interface is
+created, through `linode_interface`'s `firewall_id`, and leave `interfaces`
+unset here:
 
 ```hcl
 module "web_firewall" {
-  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall?ref=v2.4.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_firewall?ref=vX.Y.Z"
 
-  label      = "web-public"
-  interfaces = [module.public_interface.id]
-  inbound    = [] # rules as above
+  label   = "web-public"
+  inbound = [] # rules as above
+}
+
+module "public_interface" {
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_interface?ref=vX.Y.Z"
+
+  linode_id   = module.instance.instance_id
+  firewall_id = module.web_firewall.id
+  public      = {}
 }
 ```
 
-Public and VPC interfaces only; a VLAN interface takes no firewall.
+This is the order the API needs. An interface created without a
+`firewall_id` gets the account's default firewall for its type, and the
+create fails when the account has none, so a firewall attached afterwards
+through `interfaces` never gets the chance.
 
-Or attach the firewall when the interface is created, through
-`linode_interface`'s `firewall_id`. Use one of the two for a given
-interface, never both. The difference: `interfaces` here moves in place,
-while a change to `firewall_id` on the interface replaces the interface.
+`interfaces` defaults to null, which leaves attachments unmanaged: the
+provider reads each attached interface back into the `interfaces` output and
+plans no change. An explicit list, `[]` included, is enforced, so it would
+detach an interface attached by its own `firewall_id`. Listing an interface
+in both places is a dependency cycle.
+
+Public and VPC interfaces only; a VLAN interface takes no firewall.
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-capture -->
@@ -101,7 +115,7 @@ No modules.
 | <a name="input_disabled"></a> [disabled](#input\_disabled) | If true, the Firewall's rules are not enforced. | `bool` | `false` | no |
 | <a name="input_inbound"></a> [inbound](#input\_inbound) | Inbound firewall rules. With the default inbound\_policy of DROP, an empty list blocks all inbound traffic; add one rule per class of traffic to allow. | <pre>list(object({<br/>    label    = string<br/>    action   = string<br/>    protocol = string<br/>    ports    = optional(string)<br/>    ipv4     = optional(list(string))<br/>    ipv6     = optional(list(string))<br/>  }))</pre> | `[]` | no |
 | <a name="input_inbound_policy"></a> [inbound\_policy](#input\_inbound\_policy) | Default behavior for inbound traffic not matched by a rule. Defaults to DROP for a least-privilege posture. | `string` | `"DROP"` | no |
-| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall. | `list(number)` | `[]` | no |
+| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall. Leave null when the interfaces are attached by their own firewall\_id: the attachments are then read back, not managed. | `list(number)` | `null` | no |
 | <a name="input_linodes"></a> [linodes](#input\_linodes) | IDs of Linodes this Firewall governs network traffic for. | `list(number)` | `[]` | no |
 | <a name="input_nodebalancers"></a> [nodebalancers](#input\_nodebalancers) | IDs of NodeBalancers this Firewall governs network traffic for. | `list(number)` | `[]` | no |
 | <a name="input_outbound"></a> [outbound](#input\_outbound) | Outbound firewall rules. With the default outbound\_policy of ACCEPT, an empty list permits all outbound traffic; add rules only to constrain it. | <pre>list(object({<br/>    label    = string<br/>    action   = string<br/>    protocol = string<br/>    ports    = optional(string)<br/>    ipv4     = optional(list(string))<br/>    ipv6     = optional(list(string))<br/>  }))</pre> | `[]` | no |
