@@ -6,11 +6,12 @@
 # The instance is created without an image, so its boot disk and config
 # profile are their own resources; that is what lets the profile boot
 # linode/grub2. The firewall is attached through the interface's firewall_id
-# at creation. Do not also list the interface in the firewall's interfaces:
-# two resources would then manage one attachment.
+# at creation; the firewall leaves interfaces unset, so it reads that
+# attachment back rather than managing it. Listing the interface there as well
+# is a dependency cycle.
 
 terraform {
-  required_version = ">= 1.7"
+  required_version = ">= 1.11"
 }
 
 module "firewall" {

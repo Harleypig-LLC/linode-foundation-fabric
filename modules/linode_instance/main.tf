@@ -68,7 +68,7 @@ resource "linode_instance" "instance" {
   lifecycle {
     precondition {
       condition     = !(var.interface_generation == "linode" && var.firewall_id != null)
-      error_message = "firewall_id cannot be set when interface_generation is linode; the API reserves it for legacy configuration profile interfaces. Attach the firewall to the Linode's interface instead (linode_interface's firewall_id, or linode_firewall's interfaces)."
+      error_message = "firewall_id cannot be set when interface_generation is linode; the API reserves it for legacy configuration profile interfaces. Attach the firewall to the Linode's interface instead, through linode_interface's firewall_id."
     }
   }
 }

@@ -9,7 +9,7 @@ output "linode_id" {
 }
 
 output "firewall_id" {
-  description = "ID of the firewall securing this VPC or public interface, if any."
+  description = "ID of the firewall the interface was created with (null for a VLAN interface)."
   value       = linode_interface.this.firewall_id
 }
 

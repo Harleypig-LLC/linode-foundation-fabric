@@ -135,7 +135,7 @@ results were as described.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.7 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11 |
 | <a name="requirement_linode"></a> [linode](#requirement\_linode) | ~> 4 |
 
 ## Providers
