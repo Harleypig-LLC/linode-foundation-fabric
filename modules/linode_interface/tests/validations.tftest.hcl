@@ -61,6 +61,30 @@ run "rejects_firewall_opt_out" {
   expect_failures = [var.firewall_id]
 }
 
+run "rejects_zero_firewall_id" {
+  command = plan
+
+  variables {
+    firewall_id = 0 # not a firewall
+  }
+
+  expect_failures = [var.firewall_id]
+}
+
+run "rejects_firewall_on_vlan_interface" {
+  command = plan
+
+  variables {
+    firewall_id = 1001 # the API takes no firewall on a VLAN interface
+    public      = null
+    vlan = {
+      vlan_label = "backplane"
+    }
+  }
+
+  expect_failures = [var.firewall_id]
+}
+
 run "vlan_interface_needs_no_firewall" {
   command = plan
 

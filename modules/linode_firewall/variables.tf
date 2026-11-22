@@ -98,35 +98,36 @@ variable "outbound" {
 }
 
 variable "linodes" {
-  description = "IDs of Linodes this Firewall governs network traffic for."
+  description = "IDs of Linodes this Firewall governs network traffic for. null leaves attachments unmanaged (read back, not changed); a list, [] included, is enforced exactly."
   type        = list(number)
-  default     = []
+  default     = null
 
   validation {
-    condition     = alltrue([for id in var.linodes : id > 0])
+    condition     = var.linodes == null || alltrue([for id in var.linodes : id > 0])
     error_message = "Each Linode ID must be a positive integer."
   }
 }
 
 variable "nodebalancers" {
-  description = "IDs of NodeBalancers this Firewall governs network traffic for."
+  description = "IDs of NodeBalancers this Firewall governs network traffic for. null leaves attachments unmanaged (read back, not changed); a list, [] included, is enforced exactly."
   type        = list(number)
-  default     = []
+  default     = null
 
   validation {
-    condition     = alltrue([for id in var.nodebalancers : id > 0])
+    condition     = var.nodebalancers == null || alltrue([for id in var.nodebalancers : id > 0])
     error_message = "Each NodeBalancer ID must be a positive integer."
   }
 }
 
 variable "interfaces" {
-  description = "IDs of Linode Interfaces this Firewall governs network traffic for. Use this, not linodes, for a Linode on Linode Interfaces. Public and VPC interfaces only; a VLAN interface takes no firewall. Leave null when the interfaces are attached by their own firewall_id: the attachments are then read back, not managed."
+  description = "IDs of Linode Interfaces made outside this library that this Firewall governs. An interface made by linode_interface attaches through its own firewall_id; leave this null for it. null leaves attachments unmanaged (read back, not changed); a list, [] included, is enforced exactly. Public and VPC interfaces only."
   type        = list(number)
   default     = null
 
-  # null, not []: the provider reads every attached interface back into this
-  # attribute, so an explicit [] would detach an interface that was created
-  # with this firewall's ID on the next apply.
+  # null, not []: the provider reads every attached device back into these
+  # attributes, so an explicit [] would detach an interface created with this
+  # firewall's ID on the next apply. The same holds for linodes and
+  # nodebalancers against a linode_firewall_device attachment.
   validation {
     condition     = var.interfaces == null || alltrue([for id in var.interfaces : id > 0])
     error_message = "Each interface ID must be a positive integer."

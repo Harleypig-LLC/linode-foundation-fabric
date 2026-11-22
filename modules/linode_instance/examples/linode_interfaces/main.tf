@@ -11,7 +11,7 @@
 # is a dependency cycle.
 
 terraform {
-  required_version = ">= 1.9"
+  required_version = ">= 1.11"
 }
 
 module "firewall" {

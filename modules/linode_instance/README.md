@@ -98,8 +98,8 @@ On Linode Interfaces:
 - **The firewall goes on the interface, not the instance.** The API
   reserves the instance's `firewall_id` for legacy configuration profile
   interfaces, and refuses a `linode` firewall device for a Linode on Linode
-  Interfaces. Pass `firewall_id` to `linode_interface`, or list the
-  interface in `linode_firewall`'s `interfaces`, never both. This module
+  Interfaces. Pass `firewall_id` to `linode_interface`, which creates the
+  interface with the firewall attached. This module
   refuses `firewall_id` at plan time when `interface_generation = "linode"`.
   It cannot see the account default, so leaving `interface_generation`
   unset skips that check.
@@ -140,7 +140,7 @@ profile. The tests plan it.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.7 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11 |
 | <a name="requirement_linode"></a> [linode](#requirement\_linode) | ~> 4 |
 
 ## Providers

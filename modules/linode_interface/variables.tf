@@ -19,12 +19,19 @@ variable "firewall_id" {
   }
 
   # Unset, the API falls back to the account's default firewall for the
-  # interface type, and refuses the create when there is none. Either way the
-  # interface's firewall is not this configuration's to see, so it is
-  # required here. The API's -1 opt-out is refused by the check above.
+  # interface type (linode_firewall_settings), and refuses the create when
+  # there is none. Either way the interface's firewall is not this
+  # configuration's to see, so it is required here, and the account default
+  # is deliberately not used. The API's -1 opt-out is refused by the check
+  # above.
   validation {
     condition     = var.firewall_id != null || (var.public == null && var.vpc == null)
     error_message = "A public or VPC interface must be created with a firewall_id."
+  }
+
+  validation {
+    condition     = var.vlan == null || var.firewall_id == null
+    error_message = "A VLAN interface takes no firewall_id."
   }
 }
 

@@ -1,7 +1,8 @@
 # A Linode on Linode Interfaces is governed through its interfaces, not the
-# Linode: the API refuses a `linode` device for it. Create each interface with
-# this firewall's ID (linode_interface's firewall_id) and leave `interfaces`
-# null, or list the interface IDs in `interfaces`; see README.md.
+# Linode: the API refuses a `linode` device for it. An interface made by
+# linode_interface attaches through its own firewall_id, and `interfaces`
+# stays null; the list is only for interfaces made outside this library.
+# See README.md.
 
 resource "linode_firewall" "this" {
   label    = var.label

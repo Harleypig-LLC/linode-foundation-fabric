@@ -8,7 +8,7 @@ to a Linode instance. An interface is exactly one of three kinds: `public`,
 
 ```hcl
 module "interface" {
-  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_interface?ref=v2.0.0"
+  source = "github.com/Harleypig-LLC/linode-foundation-fabric//modules/linode_interface?ref=vX.Y.Z"
 
   linode_id   = 12345
   firewall_id = module.firewall.id
@@ -26,13 +26,13 @@ module "interface" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9 |
-| <a name="requirement_linode"></a> [linode](#requirement\_linode) | ~> 4 |
+| <a name="requirement_linode"></a> [linode](#requirement\_linode) | ~> 4.10 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_linode"></a> [linode](#provider\_linode) | ~> 4 |
+| <a name="provider_linode"></a> [linode](#provider\_linode) | ~> 4.10 |
 
 ## Modules
 
@@ -77,15 +77,44 @@ No modules.
   module refuses one without. Unset, the Linode API falls back to the
   account's default firewall for that interface type, and refuses the create
   when there is none. The API's `-1` opt-out is refused too. `firewall_id` is
-  not allowed on a `vlan` interface.
+  refused on a `vlan` interface.
+- **This module does not use the account default firewall.** A default set
+  with [`linode_firewall_settings`](../linode_firewall_settings) still
+  applies to interfaces created some other way, but an interface built here
+  always names its firewall, so its protection is visible in the
+  configuration that creates it.
 - The provider replaces the interface when `firewall_id` changes, so moving a
   public interface to a different firewall recreates it. Changing the
   firewall's rules, policies or label does not change its ID.
-- Leave the interface out of `linode_firewall`'s `interfaces`: that module
-  then reads the attachment back without managing it, and listing it there
-  too would be a dependency cycle.
+- Leave the interface out of `linode_firewall`'s `interfaces` (null by
+  default): that module then reads the attachment back without managing
+  it, and listing it there too would be a dependency cycle.
 - Pass `public = {}` for a public interface with auto-assigned addresses; the
   provider computes the resulting `ipv4`/`ipv6` assignments (surfaced via the
   `public` output).
 - Computed results such as assigned addresses and ranges are exposed as
   outputs (`public`, `vpc`, `default_route`); they are not inputs.
+
+## Upgrading from v2.x
+
+v3.0.0 requires `firewall_id` on every public and VPC interface. **Adding
+it to an interface that already exists replaces that interface**: the
+provider marks `firewall_id` as forcing replacement and never reads it back
+from the API, so it plans a destroy and create even when the interface
+already carries that firewall through the account default or through
+`linode_firewall`'s `interfaces`. The new interface's addresses can differ
+from the old one's unless they are reserved.
+
+So, for an interface created under v2.x without `firewall_id`, either:
+
+- **replace it deliberately**: add `firewall_id`, then plan the
+  replacement by name, `terraform plan -replace=<address> -out=<file>`, and
+  apply that saved plan, so the replacement is the one you reviewed. Expect
+  the public addresses to change unless they are reserved, and update
+  anything that points at them; or
+- **stay on v2.x** for that configuration until a replacement is
+  acceptable.
+
+An interface that was attached through `linode_firewall`'s `interfaces`
+should also come out of that list once it carries `firewall_id`, or the two
+form a dependency cycle.
